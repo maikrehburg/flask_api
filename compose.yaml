@@ -1,0 +1,30 @@
+services:
+  redis:
+    image: redislabs/redismod
+    ports:
+      - '6379:6379'
+  web:
+    build:
+      context: ./web
+      target: builder
+    # flask requires SIGINT to stop gracefully
+    # (default stop signal from Compose is SIGTERM)
+    stop_signal: SIGINT
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./web:/code
+    depends_on:
+      - redis
+      - decision-service
+  decision-service:
+    build:
+      context: ./decision-service
+      target: builder
+    # flask requires SIGINT to stop gracefully
+    # (default stop signal from Compose is SIGTERM)
+    stop_signal: SIGINT
+    ports:
+      - '7000:7000'
+    volumes:
+      - ./decision-service:/code
